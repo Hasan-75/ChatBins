@@ -1,0 +1,6 @@
+{% for user in active_users %}
+    <p>{{ user.first_name }} {{ user.last_name }}</p>
+    <p>{{ user.username }}</p>
+    <p>{{ user.email }}</p>
+    <hr>
+{% endfor %}
