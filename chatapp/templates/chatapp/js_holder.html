@@ -1,0 +1,71 @@
+{% load staticfiles %}
+<script>
+    $(document).ready(
+        function () {
+            message_form = $('#message_form');
+            message_form.hide();
+            var update_list = function(){
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState === 4 && this.status === 200) {
+                        $("#active_list").html(this.responseText);
+                    }
+                };
+                xhttp.open("GET", "{% url 'active_users' %}", true);
+                xhttp.send();
+
+            };
+            update_list();
+            setInterval(update_list, 5000);
+
+            var selected_user, update_msg;
+            $(document).on("click", '.user', function(event) {
+                console.log(event);
+                selected_user = this.name;
+                    console.log(selected_user);
+                    url_value = this.value;
+                    $('#message_form').show();
+                    var update_message = function(){
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                            if (this.readyState === 4 && this.status === 200) {
+                                $("#messages").html(this.responseText);
+                            }
+                        };
+                        xhttp.open("GET", url_value, true);
+                        xhttp.send();
+
+                    };
+                update_message();
+                setInterval(update_message, 3000);
+                update_msg = update_message;
+
+
+            });
+
+           /* */
+            message_form.submit(function(event){
+                event.preventDefault(); //prevent default action
+                $("#receiver").val(selected_user.toString());
+                var post_url = $(this).attr("action"); //get form action url
+                var request_method = $(this).attr("method"); //get form GET/POST method
+                var form_data = $(this).serialize(); //Encode form elements for submission
+                $.ajax({
+                    headers: { "X-CSRFToken": ('{{ csrf_token }}').toString() },
+                    url : post_url,
+                    type: request_method,
+                    data: form_data
+                }).done(function(response){ //
+                    $('#msg').val("");
+                    if(response.toString() === 'done'){
+                        update_msg();
+                    }
+                });
+            });
+        }
+    );
+
+    /**
+    * Created by Hasan on 20-06-19.
+    */
+</script>

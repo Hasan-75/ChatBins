@@ -1,24 +1,28 @@
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-# Create your views here.
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView, FormView
-
 from chatapp.forms import SignupForm
+from chatapp.models import TextMessage
 
 
 class IndexView(TemplateView):
     template_name = 'chatapp/index.html'
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse_lazy('messenger'))
+        return super().dispatch(request, args, kwargs)
 
 class Messanger(LoginRequiredMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = 'chatapp/messenger.html'
-
 
 class SignupView(FormView):
     template_name = 'registration/signup.html'
@@ -51,5 +55,24 @@ def get_all_logged_in_users():
 
     return User.objects.filter(id__in=uid_list)
 
+@login_required(login_url=reverse_lazy('login'))
 def active_users_list(request):
-    return render(request, 'chatapp/active_users.html', {'active_users' : get_all_logged_in_users()})
+    active_users = get_all_logged_in_users()
+    all_users = User.objects.all().exclude(username__in=active_users.values('username'))
+    return render(request, 'chatapp/active_users.html', {'active_users' : active_users, 'all_users': all_users})
+
+@login_required(login_url=reverse_lazy('login'))
+def get_users_messages(request, username):
+    current_user = request.user.username
+    selected_user = username
+    messages = TextMessage.objects.filter(Q(receiver__username=current_user) | Q(sender__username=current_user),
+                                          Q(receiver__username=selected_user) | Q(sender__username=selected_user))
+    return render(request, 'chatapp/messages.html', {'msgs':messages})
+
+@login_required(login_url=reverse_lazy('login'))
+def send_msg(request):
+    recvr = User.objects.filter(username=request.POST['receiver'])[0]
+    message = request.POST['message']
+    msg = TextMessage(sender=request.user, receiver=recvr, message=message)
+    msg.save()
+    return HttpResponse("done")

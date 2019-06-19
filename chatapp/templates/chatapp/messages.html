@@ -1,0 +1,17 @@
+
+{% for msg in msgs %}
+    {% if msg.sender.id is request.user.id %}
+        <p style="color:red; text-align: right;">
+            {{ msg.message }}
+            <br>
+        <sub style="color: gray">{{ msg.sent_at }}</sub>
+        </p>
+    {% else %}
+        <p style="color:blue; text-align: left;">
+            {{ msg.message }}
+            <br>
+        <sub style="color: gray">{{ msg.sent_at }}</sub>
+        </p>
+    {% endif %}
+
+{% endfor %}

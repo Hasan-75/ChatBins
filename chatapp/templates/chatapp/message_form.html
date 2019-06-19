@@ -1,0 +1,7 @@
+<form method="post" action="{% url 'send_message' %}" id="message_form">
+    {% csrf_token %}
+    <input type="hidden" name="sender" id="sender" value="{{ request.user.username }}">
+    <input type="hidden" name="receiver" id="receiver">
+    <input type="text" name="message" id="msg" placeholder="Type your message here!">
+    <input type="submit" value="send">
+</form>

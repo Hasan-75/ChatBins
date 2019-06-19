@@ -1,6 +1,21 @@
+<h3>
+    All users (Active {{ active_users.count|add:-1}})
+</h3>
+<hr>
+
 {% for user in active_users %}
-    <p>{{ user.first_name }} {{ user.last_name }}</p>
-    <p>{{ user.username }}</p>
-    <p>{{ user.email }}</p>
-    <hr>
+    <button value="{% url 'get_users_messages' user.username %}" name="{{ user.username }}" class="user">
+        {{ user.first_name }} {{ user.last_name }}
+         <img src="https://cdn-images-1.medium.com/max/1200/1*nZ9VwHTLxAfNCuCjYAkajg.png" height="8px" width="8px">
+    </button>
+    <br>
+    <br>
+{% endfor %}
+
+{% for user in all_users %}
+    <button value="{% url 'get_users_messages' user.username %}" name="{{ user.username }}" class="user">
+        {{ user.first_name }} {{ user.last_name }}
+    </button>
+    <br>
+    <br>
 {% endfor %}

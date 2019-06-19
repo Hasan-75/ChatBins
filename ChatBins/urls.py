@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
-from chatapp.views import IndexView, SignupView, Messanger, active_users_list
+from chatapp.views import IndexView, SignupView, Messanger, active_users_list, get_users_messages, send_msg
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +23,8 @@ urlpatterns = [
     re_path(r'^', include('django.contrib.auth.urls')),
     re_path(r'^signup/$', SignupView.as_view(), name = 'signup'),
     re_path(r'^messages/$', Messanger.as_view(), name = 'messenger'),
-    re_path(r'^messages/active_users$', active_users_list, name = 'active_users')
+    re_path(r'^messages/active_users$', active_users_list, name = 'active_users'),
+    path('messages/get_message/<username>/', get_users_messages, name='get_users_messages'),
+    path('messages/send/', send_msg, name='send_message')
 
 ]
